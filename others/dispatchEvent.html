@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <p class="hello">hello world</p>
+    <script>
+            window.addEventListener('resize', () => {
+                console.log('get resize event')
+            })
+            // 向 window派发一个resize内置事件
+            window.dispatchEvent(new Event('resize'))
+    
+            var event = new Event('build');
+            var elem = document.querySelector('.hello')
+            // 监听事件
+            elem.addEventListener('build', function (e) {
+                console.log('get element event')
+            }, false);
+            // 触发事件.
+            elem.dispatchEvent(event);
+        </script>
+</body>
+</html>
