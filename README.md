@@ -1,86 +1,127 @@
-# Polymer App Toolbox - Starter Kit
+# Web Components
 
-[![Build Status](https://travis-ci.org/Polymer/polymer-starter-kit.svg?branch=master)](https://travis-ci.org/Polymer/polymer-starter-kit)
+Web Components 是一套不同的技术，允许您创建可重用的定制元素（它们的功能封装在您的代码之外）并且在您的web应用中使用它们。
 
-This template is a starting point for building apps using a drawer-based
-layout. The layout is provided by `app-layout` elements.
+* customElements是Window对象上的一个只读属性，接口返回一个CustomElementRegistry 对象的引用, 可以用于注册一个新的custom elements ，并且可以用于获取之前定义过的自定义元素的信息。
 
-This template, along with the `polymer-cli` toolchain, also demonstrates use
-of the "PRPL pattern" This pattern allows fast first delivery and interaction with
-the content at the initial route requested by the user, along with fast subsequent
-navigation by pre-caching the remaining components required by the app and
-progressively loading them on-demand as the user navigates through the app.
-
-The PRPL pattern, in a nutshell:
-
-* **Push** components required for the initial route
-* **Render** initial route ASAP
-* **Pre-cache** components for remaining routes
-* **Lazy-load** and progressively upgrade next routes on-demand
-
-### Setup
-
-##### Prerequisites
-
-Install [Polymer CLI](https://github.com/Polymer/polymer-cli) using
-[npm](https://www.npmjs.com) (we assume you have pre-installed [node.js](https://nodejs.org)).
-
-    npm install -g polymer-cli@next
-
-##### Initialize project from template
-
-    mkdir my-app
-    cd my-app
-    polymer init polymer-3-starter-kit
-
-### Start the development server
-
-This command serves the app at `http://127.0.0.1:8081` and provides basic URL
-routing for the app:
-
-    npm start
-
-### Build
-
-The `npm run build` command builds your Polymer application for production, using build configuration options provided by the command line or in your project's `polymer.json` file.
-
-You can configure your `polymer.json` file to create multiple builds. This is necessary if you will be serving different builds optimized for different browsers. You can define your own named builds, or use presets. See the documentation on [building your project for production](https://www.polymer-project.org/3.0/toolbox/build-for-production) for more information.
-
-The Polymer Starter Kit is configured to create three builds. These builds will be output to a subdirectory under the `build/` directory as follows:
-
-```
-build/
-  es5-bundled/
-  es6-bundled/
-  esm-bundled/
+``` js
+// 使用webcomponents自定义标签
+window.customElements.define('element-details',
+  class extends HTMLElement {
+    constructor() {
+      super();
+      const template = document
+        .getElementById('element-details-template')
+        .content;
+      const shadowRoot = this.attachShadow({mode: 'open'})
+        .appendChild(template.cloneNode(true));
+  }
+});
 ```
 
-* `es5-bundled` is a bundled, minified build with a service worker. ES6 code is compiled to ES5 for compatibility with older browsers.
-* `es6-bundled` is a bundled, minified build with a service worker. ES6 code is served as-is. This build is for browsers that can handle ES6 code - see [building your project for production](https://www.polymer-project.org/3.0/toolbox/build-for-production#compiling) for a list.
-* `esm-bundled` is a bundled, minified build with a service worker. It uses standard ES module import/export statements for browsers that support them.
+> 根据规范，自定义元素的名称必须包含连词线，用与区别原生的 HTML 元素。
 
-Run `polymer help build` for the full list of available options and optimizations. Also, see the documentation on the [polymer.json specification](https://www.polymer-project.org/3.0/docs/tools/polymer-json) and [building your Polymer application for production](https://www.polymer-project.org/3.0/toolbox/build-for-production).
+## 使用生命周期回调函数
 
-### Preview the build
+在custom element的构造函数中，可以指定多个不同的回调函数，它们将会在元素的不同生命时期被调用：
 
-This command serves your app. Replace `build-folder-name` with the folder name of the build you want to serve.
+* connectedCallback：当 custom element首次被插入文档DOM时，被调用。
+* disconnectedCallback：当 custom element从文档DOM中删除时，被调用。
+* adoptedCallback：当 custom element被移动到新的文档时，被调用。
+* attributeChangedCallback: 当 custom element增加、删除、修改自身属性时，被调用。
 
-    npm start build/build-folder-name/
+# Docker
 
-### Run tests
+## 镜像与容器
 
-This command will run [Web Component Tester](https://github.com/Polymer/web-component-tester)
-against the browsers currently installed on your machine:
+Docker 中有两个重要概念。
 
-    npm test
+一个是容器（Container）：容器特别像一个虚拟机，容器中运行着一个完整的操作系统。可以在容器中装 Nodejs，可以执行npm install，可以做一切你当前操作系统能做的事情
 
-If running Windows you will need to set the following environment variables:
+另一个是镜像（Image）：镜像是一个文件，它是用来创建容器的。如果你有装过 Windows 操作系统，那么 Docker 镜像特别像“Win7纯净版.rar”文件
 
-- LAUNCHPAD_BROWSERS
-- LAUNCHPAD_CHROME
+![](https://img-blog.csdnimg.cn/20181108181808777.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0NsZXZlckNvZGU=,size_16,color_FFFFFF,t_70)
 
-Read More here [daffl/launchpad](https://github.com/daffl/launchpad#environment-variables-impacting-local-browsers-detection)
+## 流程
 
----
+容器运行程序,容器是镜像创建出来,镜像是通过一个 Dockerfile 打包来的，它非常像我们前端的package.json文件.
 
-Looking for our older PSK2 Polycast or migration blog post? See [the previous README](https://github.com/Polymer/polymer-starter-kit/blob/v3.2.1/README.md).
+```
+Dockerfile: 类似于“package.json”
+ |
+ V
+Image: 类似于“Win7纯净版.rar”
+ |
+ V
+Container: 一个完整操作系统(实例)
+```
+
+1. 配置Dockerfile文件
+
+EXPOSE 指令是声明运行时容器提供服务端口，**这只是一个声明，在运行时并不会因为这个声明应用就会开启这个端口的服务**。在 Dockerfile 中写入这样的声明有两个好处，一个是帮助镜像使用者理解这个镜像服务的守护端口，以方便配置映射；另一个用处则是在运行时使用随机端口映射时，也就是 docker run -P 时，会自动随机映射 EXPOSE 的端口。
+
+``` docker
+FROM nginx
+COPY ./index.html /usr/share/nginx/html/index.html
+EXPOSE 80
+```
+
+2. 打包镜像Image
+
+Docker 镜像是一个特殊的文件系统，除了提供容器运行时所需的程序、库、资源、配置等文件外，还包含了一些为运行时准备的一些配置参数（如匿名卷、环境变量、用户等）。
+
+``` docker
+# 基于路径./（当前路径）打包一个镜像，镜像的名字是hello-docker，版本号是1.0.0。
+# 该命令会自动寻找Dockerfile来打包出一个镜像，在本地
+docker image build ./ -t hello-docker:1.0.0
+
+# docker pull ubunttu # 下载官方已经做好的镜像源到本地
+docker image ls # 查看本机打包的镜像列表
+```
+
+3. 运行容器（基于镜像上）
+
+镜像（Image）和容器（Container）的关系，就像是面向对象程序设计中的 类 和 实例 一样。
+
+创建基于hello-docker:1.0.0镜像的一个容器。使用-p来指定端口绑定——将容器80端口绑定在宿主机的2333端口。执行完该命令，会返回一个容器ID
+
+``` docker
+docker container create -p 2333:80 hello-docker:1.0.0
+docker container start xxx # xxx 为上一条命令运行得到的结果
+# 以上等价于以下一条命令
+# docker run -d -p 2333:80 hello-docker:1.0.0
+
+docker containers ls # 查看当前运行的容器
+```
+
+常用docker命令：
+
+docker image/container命令可以简写，比如docker pull/build命令简写image，docker run简写container
+
+``` docker
+docker [image] build IMAGE_NAME # 打包本地dockerfile
+docker [image] pull IMAGE_NAME # 拉取远程docker到本地
+docker image ls # 查看image列表
+docker image rm IMAGE_ID # 删除指定image
+
+docker [container] run -d -p 映射端口:容器端口 IMAGE # 实例化化容器
+docker [container] stop CONTAINER_ID # 停止容器运行
+docker exec -it CONTAINER_ID bash # 进入指定容器里面，bash是进入命令界面
+docker container ls # 列出正在跑的container 等价docker ps
+docker container ls -a # 列出所有实例化的container， -a表示列出所有all
+docker container rm CONTAINER_ID # 删除实例化容器（正在运行的容器需要先停止才能删除成功）
+
+
+docker login
+# 上传到远程仓库，类似github上传。
+# 远程仓库带上你的namespace，如果不带就表示官方仓库，你没有这权限push
+docker tag LOCAL_IMAGE:VERSION YOUR_NAMESPACE/LOCAL_IMAGE:VERSION
+docker push YOUR_NAMESPACE/LOCAL_IMAGE:VERSION
+```
+
+## 参考文章
+
+* [Web Components 入门实例教程](http://www.ruanyifeng.com/blog/2019/08/web_components.html)
+* [Web Components Tutorial for Beginners [2019]](https://www.robinwieruch.de/web-components-tutorial)
+* https://docs.docker.com/get-started/part2/
+* https://zhuanlan.zhihu.com/p/83309276?utm_medium=social&utm_source=wechat_session
