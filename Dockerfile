@@ -1,14 +1,16 @@
+# Stage 0: UI Build Stage
+FROM node:10 as build-stage
+
+WORKDIR /app
+
+COPY ./package.json /app/
+RUN npm install
+
+COPY . /app/
+RUN npm run build
+
+# State 1
 FROM nginx
 
-# COPY ./others/dispatchEvent.html /usr/share/nginx/html/index.html
-COPY ./build/es5-bundled /usr/share/nginx/html
+COPY --from=build-stage /app/dist /usr/share/nginx/html
 EXPOSE 80
-
-# FROM node:10
-# COPY . /app
-# WORKDIR /app
-# RUN npm install
-# RUN npm run build
-
-# EXPOSE 5000
-# ENTRYPOINT ["npm", "start"]
